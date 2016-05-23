@@ -1,0 +1,25 @@
+{
+  "name": "link-analytics-results-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "dependencies": {
+    "api-media-type": "^0.1.0",
+    "argo": "^1.0.0",
+    "argo-resource": "^0.0.11",
+    "argo-url-helper": "^0.4.0",
+    "argo-url-router": "^0.0.6",
+    "influx": "^4.2.0",
+    "install": "^0.7.3",
+    "node-etcd": "^4.2.1",
+    "npm": "^3.8.9",
+    "ws": "^1.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "MIT"
+}
