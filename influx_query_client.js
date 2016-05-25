@@ -9,7 +9,7 @@ var InfluxQueryClient = module.exports = function() {
   var self = this;
   var connected = false;
   var opts = {
-    host: process.env.COREOS_PRIVATE_IPV4 || '172.17.8.103'
+    host: process.env.COREOS_PRIVATE_IPV4 
   };
 
   if(process.env.ETCD_PEER_HOSTS) {
@@ -17,30 +17,37 @@ var InfluxQueryClient = module.exports = function() {
   }
 
   this._nodeClient = new InfluxNodeClient(opts);
-  var interval = setInterval(function() {
-    if(connected) {
-      return clearInterval(interval);
+  self._nodeClient.findAll(function(err, results) {
+    console.log(arguments);
+    if(err) {
+      return console.error(err);
     }
-    
-    self._nodeClient.findAll(function(err, results) {
-      if(err) {
-        return console.error(err);
-      }
 
+    if(results.length) {
+      var endpoint = results[0].url;
+      console.log('Connecting to influx endpoint: ', endpoint);
+      var endpointUrl = url.parse(endpoint);
+      self._clientCredentials = {
+        hostname:endpointUrl.hostname,
+        port:endpointUrl.port,
+        database:'deviceData'
+      };
+      self.emit('ready');
+    }
+
+    self._nodeClient.on('change', function(results) {
       if(results.length) {
         var endpoint = results[0].url;
+        console.log('Connecting to influx endpoint: ', endpoint);
         var endpointUrl = url.parse(endpoint);
         self._clientCredentials = {
           hostname:endpointUrl.hostname,
           port:endpointUrl.port,
           database:'deviceData'
         };
-        connected = true;
-        self.emit('ready');
       }
-    }); 
-
-  }, 3000);
+    });
+  }); 
 }
 util.inherits(InfluxQueryClient, EventEmitter);
 

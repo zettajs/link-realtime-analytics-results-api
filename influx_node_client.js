@@ -5,14 +5,28 @@ var util = require('util');
 var InfluxNodeClient = module.exports = function(options) {
   EventEmitter.call(this);
   var self = this;
-  this._etcDirectory = '/services/influx';
+  this._etcDirectory = '/influx';
+  options = options || {};
   
   if(!options.client) {
     this._client = new Etcd(options.host);
   } else {
     this._client = options.client;
   }
+  this._watcher = this._client.watcher(this._etcDirectory, null, { recursive: true, consistent: true });
+  this._watcher.on('change', function() {
+    self.findAll(function(err, results) {
+      if(err) {
+        console.log(err);
+        return;
+      }
+
+      self.emit('change', results);
+    });
+  });
+
 }
+util.inherits(InfluxNodeClient, EventEmitter);
 
 InfluxNodeClient.prototype.findAll = function(cb) {
   this._client.get(this._etcDirectory, { recursive: true, consistent: true }, function(err, results) {
