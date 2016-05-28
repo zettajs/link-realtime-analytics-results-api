@@ -90,39 +90,42 @@ exports.query = function(influxUrlHost, influxUrlPort, db, query, cb) {
 
       return cb(new Error(e));
     }
+    console.log(buf);
 
-    if(buf.results) {
+    var totalResults = [];
+    if(buf.results && buf.results.length) {
       var queryResults = buf.results;
-      var totalResults = [];
       queryResults.forEach(function(item, idx) {
-        Object.keys(item).forEach(function(key) {
+        var keys = Object.keys(item);
+        if(keys && keys.length) {
+          keys.forEach(function(key) {
           
-          var singleQueryResultsSet = item[key][0];
-          var columns = singleQueryResultsSet.columns;
-          var values = singleQueryResultsSet.values;
+            var singleQueryResultsSet = item[key][0];
+            var columns = singleQueryResultsSet.columns;
+            var values = singleQueryResultsSet.values;
+             
+            var mappedResults = values.map(function(item) {
+              var obj = {};
+              columns.forEach(function(curr, idx) {
+                obj[curr] = item[idx]; 
+              });
+              return obj;
+            }); 
 
-          var mappedResults = values.map(function(item) {
-            var obj = {};
-            columns.forEach(function(curr, idx) {
-              obj[curr] = item[idx]; 
-            });
-            return obj;
-          }); 
+            var resultsObj = {
+              series: singleQueryResultsSet.name,
+              query: query[idx],
+              results: mappedResults
+            };
 
-          var resultsObj = {
-            series: singleQueryResultsSet.name,
-            query: query[idx],
-            results: mappedResults
-          };
-
-          totalResults.push(resultsObj);
-        });
+            totalResults.push(resultsObj);
+          });
+        }
+        
       });
-
-      cb(null, totalResults);
     }
-    
-  }
+    cb(null, totalResults);
+  } 
 
   var req = http.request(opts, function(res) {
     var buf = [];
@@ -142,3 +145,5 @@ exports.query = function(influxUrlHost, influxUrlPort, db, query, cb) {
 
   req.end();
 }
+
+
