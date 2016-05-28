@@ -85,7 +85,7 @@ InfluxQueryClient.prototype.getFiveLatestEvents = function(aggregate, topic, cb)
 };
 
 InfluxQueryClient.prototype._createSubscription = function() {
-  var query = "CREATE SUBSCRIPTION sub0 ON \"deviceData\".\"deviceDataRetention\" DESTINATIONS ALL 'udp://"+process.env.COREOS_PRIVATE_IPV4+":1337';";
+  var query = "CREATE SUBSCRIPTION sub0 ON \"deviceData\".\"deviceDataRetention\" DESTINATIONS ALL 'udp://"+process.env.COREOS_PRIVATE_IPV4+":3007';";
   var creds = this._clientCredentials;
   InfluxBasicClient.postQuery(creds.hostname, creds.port, creds.database, query, function(err, results) {
     if(err) {
