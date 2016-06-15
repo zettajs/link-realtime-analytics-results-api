@@ -3,7 +3,8 @@ var router = require('argo-url-router');
 var urlHelper = require('argo-url-helper');
 var resource = require('argo-resource');
 var root = require('./root');
-var udpServer = require('./udp_server');
+var TcpReceiver = require('./tcp_receiver');
+var InfluxLineParser = require('./influx_line_parser');
 var http = require('http');
 var qs = require('querystring');
 var url = require('url');
@@ -64,21 +65,35 @@ server.on('upgrade', function(request, socket, headers) {
   
 });
 var emitter = new EventEmitter();
-emitter.on('aggregatedata.average', function(data) {
-  if(topics[data.topic]) {
-    var sockets = topics[data.topic];
-    sockets.forEach(function(socket) {
-      socket.send(JSON.stringify(data));
-    });
-  }
+emitter.on('data', function(data) {
+  data = data.toString().split('\n');
+  data.forEach(function(dataLine) {
+    parseAndSend(dataLine);
+  });
 
-  if(topics['*']) {
-    var sockets = topics['*'];
-    sockets.forEach(function(socket) {
-      socket.send(JSON.stringify(data));
-    });
+  function parseAndSend(line) {
+    var parsedData = InfluxLineParser(line);
+    if(parsedData) {
+      console.log(parsedData);
+      
+      var data = parsedData.data;
+      if(topics[data.topic]) {
+        var sockets = topics[data.topic];
+        sockets.forEach(function(socket) {
+          socket.send(JSON.stringify(data));
+        });
+      }
+
+      if(topics['*']) {
+        var sockets = topics['*'];
+        sockets.forEach(function(socket) {
+          socket.send(JSON.stringify(data));
+        });
+      }
+    }
   }
+  
 });
-udpServer(emitter, process.env.UDP_PORT || 1337);
+TcpReceiver(emitter, process.env.UDP_PORT || 3008);
 server.listen(process.env.PORT || 3002);
 

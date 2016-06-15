@@ -32,7 +32,6 @@ var InfluxQueryClient = module.exports = function() {
         port:endpointUrl.port,
         database:'deviceData'
       };
-      self._createSubscription();
       self.emit('ready');
     }
 
@@ -41,15 +40,11 @@ var InfluxQueryClient = module.exports = function() {
         var endpoint = results[0].url;
         console.log('Connecting to influx endpoint: ', endpoint);
         var endpointUrl = url.parse(endpoint);
-        if(!self._clientCredentials || (endpointUrl.hostname != self._clientCredentials.hostname)) {
-          self._createSubscription();
-        }
         self._clientCredentials = {
           hostname:endpointUrl.hostname,
           port:endpointUrl.port,
           database:'deviceData'
         };
-
       }
     });
   }); 

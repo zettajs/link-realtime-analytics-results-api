@@ -199,6 +199,10 @@ exports.postQuery = function(influxUrlHost, influxUrlPort, db, query, cb) {
             var columns = singleQueryResultsSet.columns;
             var values = singleQueryResultsSet.values;
              
+            if(!values) {
+              return cb(null, []);
+            }
+
             var mappedResults = values.map(function(item) {
               var obj = {};
               columns.forEach(function(curr, idx) {
