@@ -116,7 +116,7 @@ Root.prototype._buildResponse = function(results, env, next) {
       "properties": {
         "device": item.device,
         "value": item.value,
-        "timestamp": item.time
+        "timestamp": item.time / 1000000
       }
     };
   }
