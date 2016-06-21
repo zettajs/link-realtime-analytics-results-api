@@ -94,6 +94,6 @@ emitter.on('data', function(data) {
   }
   
 });
-TcpReceiver(emitter, process.env.UDP_PORT || 3008);
+TcpReceiver(emitter, process.env.TCP_PORT || 3008);
 server.listen(process.env.PORT || 3002);
 
