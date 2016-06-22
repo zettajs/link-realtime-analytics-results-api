@@ -1,5 +1,6 @@
 module.exports = function(line) {
   var components = line.split(',');
+  console.log(components);
 
   if(components.length && components[0]) {
     var collection = components[0];
