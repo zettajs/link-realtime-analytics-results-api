@@ -31,28 +31,28 @@ Root.prototype.root = function(env, next) {
       if(err) {
         env.response.statusCode = 500;
         return next(env);
-      } 
+      }
 
       self._buildResponse(results, env, next);
-    }); 
-    
+    });
+
   } else {
-    this._rootResponse(env, next);  
+    this._rootResponse(env, next);
   }
 
-  
+
 }
 
 
 Root.prototype._rootResponse = function(env, next) {
   var res = {
     class: ['root'],
-    actions: [ 
+    actions: [
       {
         name: 'query',
         href: env.helpers.url.current(),
         method: 'GET',
-        type: MediaType.FORM_URLENCODED,      
+        type: MediaType.FORM_URLENCODED,
         fields: [
           {
             "name":"topic",
@@ -70,9 +70,6 @@ Root.prototype._rootResponse = function(env, next) {
                 "value":"average"
               },
               {
-                "value": "sum"
-              },
-              {
                 "value": "min"
               },
               {
@@ -80,9 +77,9 @@ Root.prototype._rootResponse = function(env, next) {
               },
               {
                 "value": "raw"
-              }  
+              }
             ]
-          }         
+          }
         ]
       }
     ],
@@ -94,7 +91,7 @@ Root.prototype._rootResponse = function(env, next) {
       {
         rel: ['events'],
         href: env.helpers.url.path('/events').replace(/^http/, 'ws')
-      }  
+      }
     ]
   }
   env.response.statusCode = 200;
@@ -108,22 +105,29 @@ Root.prototype._buildResponse = function(results, env, next) {
   var q = {topic: params.topic};
   var field = params.field;
   var aggregation = params.aggregation;
-  
+
   function formatEntity(item) {
+    var value = item[aggregation];
+    if(aggregation == 'average') {
+     value = item['mean'];
+    } else if (aggregation == 'raw') {
+     value = item['value'];
+    }
+
     return {
       "rel": ["item"],
       "class": ["aggregation"],
       "properties": {
         "device": item.device,
-        "value": item.value,
-        "timestamp": item.time / 1000000
+        "value": value,
+        "timestamp": item.time
       }
     };
   }
 
   var entities = results[0].results.map(function(i) {
     return formatEntity(i);
-  }); 
+  });
 
   var res = {
       class: ['query-results'],
@@ -131,7 +135,7 @@ Root.prototype._buildResponse = function(results, env, next) {
         topic: params.topic,
         field: field,
         aggregation: aggregation,
-        timestamp: Date.now() 
+        timestamp: Date.now()
       },
       entities: entities,
       links: [
@@ -146,7 +150,7 @@ Root.prototype._buildResponse = function(results, env, next) {
         {
           rel: ['monitor'],
           href: env.helpers.url.path('/events') + url.format({query: q})
-        }        
+        }
       ]
     }
 

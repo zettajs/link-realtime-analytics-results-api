@@ -9,7 +9,7 @@ var InfluxQueryClient = module.exports = function() {
   var self = this;
   var connected = false;
   var opts = {
-    host: process.env.COREOS_PRIVATE_IPV4 
+    host: process.env.COREOS_PRIVATE_IPV4
   };
 
   if(process.env.ETCD_PEER_HOSTS) {
@@ -47,7 +47,7 @@ var InfluxQueryClient = module.exports = function() {
         };
       }
     });
-  }); 
+  });
 }
 util.inherits(InfluxQueryClient, EventEmitter);
 
@@ -55,21 +55,25 @@ InfluxQueryClient.prototype.getFiveLatestEvents = function(aggregate, topic, cb)
   var current = new Date();
   var timestamp = new Date(current.setSeconds(0));
   var topicComponents = topic.split('/');
-  var type = topicComponents[0]; 
+  var type = topicComponents[0];
   var id = topicComponents[1];
   var stream = topicComponents[2];
   var series = 'devicedata.'+type+'.'+stream;
 
   if(aggregate == 'average') {
-    series = 'aggregatedata.average'; 
-  } 
+    series = 'aggregatedata.average';
+  } else if(aggregate == 'min') {
+    series = 'aggregatedata.min'
+  } else if(aggregate == 'max') {
+    series = 'aggregatedata.max'
+  }
   series = '"' + series + '"';
   var creds = this._clientCredentials;
-  var query = "SELECT mean as value, * FROM "+ series +" WHERE time < '" + timestamp.toISOString() + "' AND device = '" + id + "' ORDER BY time DESC LIMIT 5";
+  var query = "SELECT value, * FROM deviceData.\"aggregateDeviceDataRetention\"."+ series +" WHERE time < '" + timestamp.toISOString() + "' AND device = '" + id + "' ORDER BY time DESC LIMIT 5";
   console.log(query);
   if(aggregate == 'raw') {
     query = "SELECT * FROM "+ series +" WHERE device = '" + id + "' ORDER BY time DESC LIMIT 5";
-  }   
+  }
   InfluxBasicClient.query(creds.hostname, creds.port, creds.database, query, function(err, results) {
     if(err) {
       return cb(err);
