@@ -27,6 +27,11 @@ Root.prototype.root = function(env, next) {
     var field = params.field;
     var aggregation = params.aggregation;
 
+    if(!field || !aggregation) {
+      env.response.statusCode = 404;
+      return next(env);
+    }
+
     self._client.getFiveLatestEvents(aggregation, topic, function(err, results) {
       if(err) {
         env.response.statusCode = 500;
