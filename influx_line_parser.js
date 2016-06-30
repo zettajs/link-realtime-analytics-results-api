@@ -12,7 +12,7 @@ module.exports = function(line) {
     var deviceStream = averageComponents[0].split('=')[1];
     var value = averageComponents[1].split('=')[1];
     var timestamp = parseInt(averageComponents[2]) / 1000000;
-    var data = {hub: hub, topic: deviceType+'/'+deviceId+'/'+deviceStream, value: value, timestamp: timestamp, aggregation: aggregation};
+    var data = {hub: hub, topic: deviceType+'/'+deviceId+'/'+deviceStream, value: parseFloat(value), timestamp: timestamp, aggregation: aggregation};
     return {collection: collection, data: data};
   } else {
     return null;
