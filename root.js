@@ -125,10 +125,12 @@ Root.prototype._buildResponse = function(results, env, next) {
     };
   }
 
-  var entities = results[0].results.map(function(i) {
-    return formatEntity(i);
-  });
-
+  var entities = [];
+  if(results.length) {
+    entities = results[0].results.map(function(i) {
+      return formatEntity(i);
+    });
+  } 
   var res = {
       class: ['query-results'],
       properties: {

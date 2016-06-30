@@ -90,8 +90,7 @@ exports.query = function(influxUrlHost, influxUrlPort, db, query, cb) {
 
       return cb(new Error(e));
     }
-    console.log(JSON.stringify(buf));
-
+    
     var totalResults = [];
     if(buf.results && buf.results.length) {
       var queryResults = buf.results;
