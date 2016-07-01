@@ -69,7 +69,7 @@ InfluxQueryClient.prototype.getFiveLatestEvents = function(aggregate, topic, cb)
   }
   series = '"' + series + '"';
   var creds = this._clientCredentials;
-  var query = "SELECT value, * FROM deviceData.\"aggregateDeviceDataRetention\"."+ series +" WHERE time < '" + timestamp.toISOString() + "' AND device = '" + id + "' ORDER BY time DESC LIMIT 5";
+  var query = "SELECT value, * FROM deviceData.\"aggregateDeviceDataRetention\"."+ series +" WHERE time < '" + timestamp.toISOString() + "' AND device = '" + id + "' AND stream = '"+ stream +"' ORDER BY time DESC LIMIT 5";
   console.log(query);
   if(aggregate == 'raw') {
     query = "SELECT * FROM "+ series +" WHERE device = '" + id + "' ORDER BY time DESC LIMIT 5";
