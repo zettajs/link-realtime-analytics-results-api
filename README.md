@@ -163,3 +163,7 @@ API component for the realtime analytics PoC for Apigee Link.
   ]  
 }
 ```
+
+## Disclaimer
+
+This is not an officially supported Google product.
